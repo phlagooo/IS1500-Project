@@ -16,7 +16,7 @@
 
 
 int mytime = 0x5957;
-int timeoutcount = 0;
+//int timeoutcount = 0; //should be no longer necessary as 16bits is enough for timer when set at 1/60 seconds
 int prime = 1234567;
 
 char textstring[] = "text, more text, and even more text!";
@@ -25,9 +25,9 @@ char textstring[] = "text, more text, and even more text!";
 void user_isr( void ) {
   if(IFS(0) & 0x100) { //check timer flag
 
-  timeoutcount++;
+  //timeoutcount++;
 
-    if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
+    //if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
       time2string( textstring, mytime );
       display_string( 3, textstring );
       display_update();
@@ -38,7 +38,7 @@ void user_isr( void ) {
       volatile int* lights = (volatile int*) 0xbf886110;
       *lights = *lights & 0xFF;
       (*lights)++;
-    }
+   // }
     IFSCLR(0) = 0x100; //clear timer flag
  }
 }
@@ -51,7 +51,7 @@ void labinit( void ) {
 
   TRISD &= 0xFE0;
 
-  PR2 = ((80000000/256)/10);
+  PR2 = ((80000000/60)/256);
   T2CONSET = 0x70; // prescaler 1:256
   TMR2 = 0x0;
   T2CONSET = 0x8000;
