@@ -33,7 +33,7 @@ void user_isr( void ) {
       display_update();
       tick( &mytime );
       display_image(96, icon);
-      timeoutcount = 0;
+      //timeoutcount = 0;
 
       volatile int* lights = (volatile int*) 0xbf886110;
       *lights = *lights & 0xFF;
