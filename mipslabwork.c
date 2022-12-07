@@ -19,7 +19,7 @@ int randomNumber = 0;
 int tmr = 0;
 
 int mytime = 0x5902;
-int timeoutcount = 0;
+//int timeoutcount = 0;
 int prime = 1234567;
 int box = 0;
 int sifr = 3;
@@ -41,9 +41,9 @@ char nada[] = "";
 void user_isr( void ) {
   if(IFS(0) & 0x100) { //check timer flag
 
-  timeoutcount++;
+  //timeoutcount++;
 
-    if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
+   // if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
       //time2string( textstring, box );
       display_string( sifr, textstring );
       display_string( sifr-1, nada );
@@ -58,7 +58,7 @@ void user_isr( void ) {
       x1 = x1-16;
       x2 = x2-16;
       
-      timeoutcount = 0;
+     // timeoutcount = 0;
       oka(andr);
       
       
@@ -77,12 +77,6 @@ inline int fast_rand(void) {
     g_seed = (214013*g_seed+2531011);
     return (g_seed>>16)&0x7FFF;
 }
-
-
-
-      
-
-
 
       if(x1 == -16){
           y1 = (tmr % 3) + 1;
@@ -140,7 +134,7 @@ void labinit( void ) {
 
   TRISD &= 0xFE0;
 
-  PR2 = ((80000000/256)/10);
+  PR2 = ((80000000/60)/256);
   T2CONSET = 0x70; // prescaler 1:256
   TMR2 = 0x0;
   T2CONSET = 0x8000;
