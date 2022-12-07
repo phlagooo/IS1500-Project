@@ -15,33 +15,122 @@
 #include "mipslab.h"  /* Declatations for these labs */
 
 
-int mytime = 0x5957;
-//int timeoutcount = 0; //should be no longer necessary as 16bits is enough for timer when set at 1/60 seconds
-int prime = 1234567;
+int randomNumber = 0;
+int tmr = 0;
 
-char textstring[] = "text, more text, and even more text!";
+int mytime = 0x5902;
+int timeoutcount = 0;
+int prime = 1234567;
+int box = 0;
+int sifr = 3;
+int andr = 1;
+int rakn = 0;
+
+//srand(myTime);
+
+int x1 = 96;
+int x2 = 96-64;
+int y1 = 1;
+int y2 = 0;
+
+
+char textstring[] = "o";
+char nada[] = "";
 
 /* Interrupt Service Routine */
 void user_isr( void ) {
   if(IFS(0) & 0x100) { //check timer flag
 
-  //timeoutcount++;
+  timeoutcount++;
 
-    //if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
-      time2string( textstring, mytime );
-      display_string( 3, textstring );
+    if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
+      //time2string( textstring, box );
+      display_string( sifr, textstring );
+      display_string( sifr-1, nada );
+      display_string( sifr+1, nada );
       display_update();
       tick( &mytime );
-      display_image(96, icon);
-      //timeoutcount = 0;
+      display_image(x1, y1, icon);
+      
+      display_image(x2, y2, icon);
 
+      tmr++;
+      x1 = x1-16;
+      x2 = x2-16;
+      
+      timeoutcount = 0;
+      oka(andr);
+      
+      
+
+
+static unsigned int g_seed;
+
+// Used to seed the generator.           
+inline void fast_srand(int tmr) {
+    g_seed = tmr;
+}
+
+// Compute a pseudorandom integer.
+// Output value in range [0, 32767]
+inline int fast_rand(void) {
+    g_seed = (214013*g_seed+2531011);
+    return (g_seed>>16)&0x7FFF;
+}
+
+
+
+      
+
+
+
+      if(x1 == -16){
+          y1 = (tmr % 3) + 1;
+          x1=112;
+          
+      }
+
+      if(x2 == -16){
+          y2 = (tmr % 3) + 1;
+          x2=112;
+          
+      }      
+
+
+      if(sifr > 4){
+        sifr = 0;
+      }
+
+    
       volatile int* lights = (volatile int*) 0xbf886110;
       *lights = *lights & 0xFF;
       (*lights)++;
-   // }
+      
+    }
     IFSCLR(0) = 0x100; //clear timer flag
  }
 }
+
+void oka(int numr){
+  if (numr == 1){
+    sifr++;
+  }
+  else{
+    sifr--;
+  }
+  
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* Lab-specific initialization goes here */
 void labinit( void ) {
@@ -51,7 +140,7 @@ void labinit( void ) {
 
   TRISD &= 0xFE0;
 
-  PR2 = ((80000000/60)/256);
+  PR2 = ((80000000/256)/10);
   T2CONSET = 0x70; // prescaler 1:256
   TMR2 = 0x0;
   T2CONSET = 0x8000;
@@ -70,15 +159,19 @@ void labwork( void ) { //handle inputs here for lower latency (might be negligib
     int switchesCheck = getsw();
 
     if(buttonCheck & 0x1 == 1) {
-    mytime = (mytime & 0xFF0F) | (switchesCheck << 4);
+    //mytime = (mytime & 0xFF0F) | (switchesCheck << 4);
     }
 
     if((buttonCheck >> 1) & 0x1 == 1) {
-     mytime = (mytime & 0xF0FF) | (switchesCheck << 8);
+     //mytime = (mytime & 0xF0FF) | (switchesCheck << 8);
+     andr = 1;
     }
 
     if((buttonCheck >> 2) & 0x1 == 1) {
-     mytime = (mytime & 0xFFF) | (switchesCheck << 12);
+     //mytime = (mytime & 0xFFF) | (switchesCheck << 12);
+     
+    andr = 0;
+
     }
  }
 }

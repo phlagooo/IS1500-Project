@@ -8,6 +8,7 @@
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include "mipslab.h"  /* Declatations for these labs */
 
+
 /* Declare a helper function which is local to this file */
 static void num32asc( char * s, int ); 
 
@@ -22,8 +23,6 @@ static void num32asc( char * s, int );
 
 #define DISPLAY_TURN_OFF_VDD (PORTFSET = 0x40)
 #define DISPLAY_TURN_OFF_VBAT (PORTFSET = 0x20)
-
-
 
 /* quicksleep:
    A simple function to create a small delay.
@@ -143,7 +142,91 @@ void display_string(int line, char *s) {
 			textbuffer[line][i] = ' ';
 }
 
-void display_image(int x, const uint8_t *data) {
+
+
+
+
+void display_image(int x, int y, const uint8_t *data) {
+	int i, j;
+  
+
+  for(i = y+1; i < 5; i++) {
+		DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+		spi_send_recv(0x22);
+		spi_send_recv(i);
+		
+		spi_send_recv(x & 0xF);
+		spi_send_recv(0x10 | ((x >> 4) & 0xF));
+		
+		DISPLAY_CHANGE_TO_DATA_MODE;
+		
+		for(j = 0; j < 16; j++)
+			spi_send_recv(~data[i*16 + j]);
+	}
+
+	for(i = -1; i < y-1; i++) {
+		DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+		spi_send_recv(0x22);
+		spi_send_recv(i);
+		
+		spi_send_recv(x & 0xF);
+		spi_send_recv(0x10 | ((x >> 4) & 0xF));
+		
+		DISPLAY_CHANGE_TO_DATA_MODE;
+		
+		for(j = 0; j < 16; j++)
+			spi_send_recv(~data[i*16 + j]);
+	}
+  
+
+/*
+  if(y == 3){
+    for(i = 0; i < 4-y; i++) {
+		DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+		spi_send_recv(0x22);
+		spi_send_recv(i);
+		
+		spi_send_recv(x & 0xF);
+		spi_send_recv(0x10 | ((x >> 4) & 0xF));
+		
+		DISPLAY_CHANGE_TO_DATA_MODE;
+		
+		for(j = 0; j < 16; j++)
+			spi_send_recv(~data[i*16 + j]);
+	}
+  }
+
+  if(y == 2){
+    for(i = 0; i < 0; i++) {
+		DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+		spi_send_recv(0x22);
+		spi_send_recv(i);
+		
+		spi_send_recv(x & 0xF);
+		spi_send_recv(0x10 | ((x >> 4) & 0xF));
+		
+		DISPLAY_CHANGE_TO_DATA_MODE;
+		
+		for(j = 0; j < 16; j++)
+			spi_send_recv(~data[i*16 + j]);
+	}
+  }
+
+*/
+  //fsdfsdfdssdf
+}
+
+
+
+
+
+
+
+/*void display_image(int x, const uint8_t *data) {
 	int i, j;
 	
 	for(i = 0; i < 4; i++) {
@@ -160,7 +243,8 @@ void display_image(int x, const uint8_t *data) {
 		for(j = 0; j < 32; j++)
 			spi_send_recv(~data[i*32 + j]);
 	}
-}
+}*/
+
 
 void display_update(void) {
 	int i, j, k;
