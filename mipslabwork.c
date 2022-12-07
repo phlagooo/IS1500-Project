@@ -61,9 +61,6 @@ void user_isr( void ) {
      // timeoutcount = 0;
       oka(andr);
       
-      
-
-
 static unsigned int g_seed;
 
 // Used to seed the generator.           
@@ -83,19 +80,15 @@ inline int fast_rand(void) {
           x1=112;
           
       }
-
       if(x2 == -16){
           y2 = (tmr % 3) + 1;
           x2=112;
           
       }      
-
-
       if(sifr > 4){
         sifr = 0;
       }
 
-    
       volatile int* lights = (volatile int*) 0xbf886110;
       *lights = *lights & 0xFF;
       (*lights)++;
@@ -105,26 +98,14 @@ inline int fast_rand(void) {
  }
 }
 
-void oka(int numr){
+void oka(int numr) {
   if (numr == 1){
     sifr++;
   }
   else{
     sifr--;
   }
-  
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /* Lab-specific initialization goes here */
 void labinit( void ) {
