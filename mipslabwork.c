@@ -19,6 +19,7 @@ int randomNumber = 0;
 int tmr = 0;
 
 int mytime = 0x5902;
+static unsigned int g_seed;
 //int timeoutcount = 0;
 int prime = 1234567;
 int box = 0;
@@ -60,20 +61,6 @@ void user_isr( void ) {
       
      // timeoutcount = 0;
       oka(andr);
-      
-static unsigned int g_seed;
-
-// Used to seed the generator.           
-inline void fast_srand(int tmr) {
-    g_seed = tmr;
-}
-
-// Compute a pseudorandom integer.
-// Output value in range [0, 32767]
-inline int fast_rand(void) {
-    g_seed = (214013*g_seed+2531011);
-    return (g_seed>>16)&0x7FFF;
-}
 
       if(x1 == -16){
           y1 = (tmr % 3) + 1;
