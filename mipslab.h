@@ -13,6 +13,7 @@ void display_init(void);
 void display_string(int line, char *s);
 void display_update(void);
 uint8_t spi_send_recv(uint8_t data);
+void setPixel(int x, int y);
 
 /* Declare lab-related functions from mipslabfunc.c */
 char * itoaconv( int num );
@@ -20,6 +21,7 @@ void labwork(void);
 int nextprime( int inval );
 void quicksleep(int cyc);
 void tick( unsigned int * timep );
+
 
 /* Declare display_debug - a function to help debugging.
 
@@ -38,9 +40,11 @@ void display_debug( volatile int * const addr );
 /* Declare bitmap array containing font */
 extern const uint8_t const font[128*8];
 /* Declare bitmap array containing icon */
-extern const uint8_t const icon[128];
+extern const uint8_t const icon[128*4];
 /* Declare text buffer for display output */
 extern char textbuffer[4][16];
+
+extern uint8_t icon2[128*4];
 
 /* Declare functions written by students.
    Note: Since we declare these functions here,
@@ -53,3 +57,12 @@ void time2string( char *, int );
 int getbtns(void);
 int getsw(void);
 void enable_interrupt(void);
+
+
+void drawRoof();
+void drawGround();
+void drawPlayer(int x, int y);
+void clearDisplay();
+void drawPipe(int pipeNumber);
+void handlePipes();
+void setPlayer();

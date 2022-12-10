@@ -14,68 +14,42 @@
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include "mipslab.h"  /* Declatations for these labs */
 
+int playerPosY = 16;
+int playerPosX = 16;
+int fps = 10;
 
-int randomNumber = 0;
-int tmr = 0;
+int pipe1X = 50;
+int pipe2X = 75;
+int pipe3X = 100;
+int pipe4X = 125;
+int pipe5X = 150;
+int pipe6X = 175;
 
-int mytime = 0x5902;
-static unsigned int g_seed;
-//int timeoutcount = 0;
-int prime = 1234567;
-int box = 0;
-int sifr = 3;
-int andr = 1;
-int rakn = 0;
-
-//srand(myTime);
-
-int x1 = 96;
-int x2 = 96-64;
-int y1 = 1;
-int y2 = 0;
-
-
-char textstring[] = "o";
-char nada[] = "";
 
 /* Interrupt Service Routine */
 void user_isr( void ) {
   if(IFS(0) & 0x100) { //check timer flag
-
-  //timeoutcount++;
-
-   // if(timeoutcount >= 10) { //timer is 100 ms so 10x for 1000ms currently, update 60hz future and handle graphics here
-      //time2string( textstring, box );
-      display_string( sifr, textstring );
-      display_string( sifr-1, nada );
-      display_string( sifr+1, nada );
+      clearDisplay();
+      borderCollision();
       display_update();
-      tick( &mytime );
-      display_image(x1, y1, icon);
+  
+      playerPosY++;
+
+      drawRoof();
+      drawGround();
+      drawPipes();
+      drawPlayer(playerPosX, playerPosY);
+
       
-      display_image(x2, y2, icon);
+      display_image3(0, icon2);
 
-      tmr++;
-      x1 = x1-16;
-      x2 = x2-16;
-      
-     // timeoutcount = 0;
-      oka(andr);
+      handlePipes();
 
-      if(x1 == -16){
-          y1 = (tmr % 3) + 1;
-          x1=112;
-          
-      }
-      if(x2 == -16){
-          y2 = (tmr % 3) + 1;
-          x2=112;
-          
-      }      
-      if(sifr > 4){
-        sifr = 0;
-      }
-
+      int buttonCheck = getbtns();
+      if((buttonCheck >> 2) & 0x1 == 1) {
+        playerPosY -= 4;
+ }
+    
       volatile int* lights = (volatile int*) 0xbf886110;
       *lights = *lights & 0xFF;
       (*lights)++;
@@ -83,16 +57,6 @@ void user_isr( void ) {
     }
     IFSCLR(0) = 0x100; //clear timer flag
  }
-}
-
-void oka(int numr) {
-  if (numr == 1){
-    sifr++;
-  }
-  else{
-    sifr--;
-  }
-}
 
 /* Lab-specific initialization goes here */
 void labinit( void ) {
@@ -102,7 +66,7 @@ void labinit( void ) {
 
   TRISD &= 0xFE0;
 
-  PR2 = ((80000000/60)/256);
+  PR2 = ((80000000/fps)/256);
   T2CONSET = 0x70; // prescaler 1:256
   TMR2 = 0x0;
   T2CONSET = 0x8000;
@@ -126,13 +90,12 @@ void labwork( void ) { //handle inputs here for lower latency (might be negligib
 
     if((buttonCheck >> 1) & 0x1 == 1) {
      //mytime = (mytime & 0xF0FF) | (switchesCheck << 8);
-     andr = 1;
     }
 
     if((buttonCheck >> 2) & 0x1 == 1) {
      //mytime = (mytime & 0xFFF) | (switchesCheck << 12);
      
-    andr = 0;
+     
 
     }
  }

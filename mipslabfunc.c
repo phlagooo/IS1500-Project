@@ -24,6 +24,178 @@ static void num32asc( char * s, int );
 #define DISPLAY_TURN_OFF_VDD (PORTFSET = 0x40)
 #define DISPLAY_TURN_OFF_VBAT (PORTFSET = 0x20)
 
+#define WIDTH (128)
+#define HEIGHT (32)
+#define PAGES (4)
+
+extern x1;
+extern y1;
+extern x2;
+extern y2;
+extern tmr;
+extern playerPosY;
+extern pipe1X;
+extern pipe2X;
+extern pipe3X;
+extern pipe4X;
+extern pipe5X;
+extern pipe6X;
+
+/*
+Sets the specified pixel to on
+*/
+void setPixel(int x, int y) {
+  uint8_t page;
+  int indexSliver;
+
+  if ((y >= 0) && (y < 32) && (x >= 0) && (x < 128))
+  {
+  
+  if (y < 8) {
+    page = 0;
+  } else if (y < 16) {
+    page = 1;
+  } else if (y < 24) {
+    page = 2;
+  } else if (y < 32) {
+    page = 3;
+  }
+  y = y % 8;
+  indexSliver = (page*128) + x;
+
+  switch (y) {
+  case 0:
+    icon2[indexSliver] &= 0b11111110;
+    break;
+
+  case 1:
+    icon2[indexSliver] &= 0b11111101;
+    break;
+
+  case 2:
+    icon2[indexSliver] &= 0b11111011;
+    break;
+    
+  case 3:
+    icon2[indexSliver] &= 0b11110111;
+    break;
+
+  case 4:
+    icon2[indexSliver] &= 0b11101111;
+    break;
+
+  case 5:
+    icon2[indexSliver] &= 0b11011111;
+    break;
+
+  case 6:
+    icon2[indexSliver] &= 0b10111111;
+    break;
+    
+  case 7:
+    icon2[indexSliver] &= 0b01111111;
+    break;
+  }
+}
+}
+
+/*
+Sets the specified pixel on and also ends game if the pixels collide.
+*/
+void setPixelCheckCollision(int x, int y) {
+  uint8_t page;
+  int indexSliver;
+
+  if ((y >= 0) && (y < 32) && (x >= 0) && (x < 128))
+  {
+  
+  if (y < 8) {
+    page = 0;
+  } else if (y < 16) {
+    page = 1;
+  } else if (y < 24) {
+    page = 2;
+  } else if (y < 32) {
+    page = 3;
+  }
+  y = y % 8;
+  indexSliver = (page*128) + x;
+  uint8_t icon3[512];
+  int i;
+  for (i = 0; i < 512; i++) {
+    icon3[i] = icon2[i];
+  }
+
+
+  switch (y) {
+  case 0:
+    if ((icon3[indexSliver] &= 0b1) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b11111110;
+    }
+    break;
+
+  case 1:
+    if ((icon3[indexSliver] &= 0b10) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b11111101;
+    }
+    break;
+
+  case 2:
+    if ((icon3[indexSliver] &= 0b100) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b11111011;
+    }
+    break;
+    
+  case 3:
+    if ((icon3[indexSliver] &= 0b1000) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b11110111;
+    }
+    break;
+
+  case 4:
+    if ((icon3[indexSliver] &= 0b10000) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b11101111;
+    }
+    break;
+
+  case 5:
+    if ((icon3[indexSliver] &= 0b100000) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b11011111;
+    }
+    break;
+
+  case 6:
+    if ((icon3[indexSliver] &= 0b1000000) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b10111111;
+    }
+    break;
+    
+  case 7:
+    if ((icon3[indexSliver] &= 0b10000000) == 0) {
+      death();
+    } else {
+      icon2[indexSliver] &= 0b01111111;
+    }
+    break;
+  }
+}
+}
+
+
 /* quicksleep:
    A simple function to create a small delay.
    Very inefficient use of computing resources,
@@ -31,6 +203,235 @@ static void num32asc( char * s, int );
 void quicksleep(int cyc) {
 	int i;
 	for(i = cyc; i > 0; i--);
+}
+
+void resetPipes() {
+  pipe1X = 50;
+  pipe2X = 75;
+  pipe3X = 100;
+  pipe4X = 125;
+  pipe5X = 150;
+  pipe6X = 175;
+}
+
+void movePipe(int pipeNumber) {
+  switch (pipeNumber)
+  {
+  case 1:
+    pipe1X = 150;
+    break;
+
+  case 2:
+    pipe2X = 150;
+    break;
+
+  case 3:
+    pipe3X = 150;
+    break;
+
+  case 4:
+    pipe4X = 150;
+    break;
+
+  case 5:
+    pipe5X = 150;
+    break;
+
+  case 6:
+    pipe6X = 150;
+    break;
+  
+  default:
+    break;
+  }
+}
+
+void drawPipes() {
+  int height1;
+  int width1;
+  for (height1 = 1; height1 < 5; height1++) {
+    for (width1 = pipe1X; width1 < pipe1X + 5; width1++) {
+      setPixel(width1, height1);
+    }
+  }
+  for (height1 = 20; height1 < 31; height1++) {
+    for (width1 = pipe1X; width1 < pipe1X + 5; width1++) {
+      setPixel(width1, height1);
+    }
+  }
+
+  int height2;
+  int width2;
+  for (height2 = 1; height2 < 13; height2++) {
+    for (width2 = pipe2X; width2 < pipe2X + 5; width2++) {
+      setPixel(width2, height2);
+    }
+  }
+  for (height2 = 28; height2 < 31; height2++) {
+    for (width2 = pipe2X; width2 < pipe2X + 5; width2++) {
+      setPixel(width2, height2);
+    }
+  }
+//pipe 3
+  int height3;
+  int width3;
+  for (height3 = 1; height3 < 5; height3++) {
+    for (width3 = pipe3X; width3 < pipe3X + 5; width3++) {
+      setPixel(width3, height3);
+    }
+  }
+  for (height3 = 25; height3 < 31; height3++) {
+    for (width3 = pipe3X; width3 < pipe3X + 5; width3++) {
+      setPixel(width3, height3);
+    }
+  }
+//pipe 4
+  int height4;
+  int width4;
+  for (height4 = 1; height4 < 3; height4++) {
+    for (width4 = pipe4X; width4 < pipe4X + 5; width4++) {
+      setPixel(width4, height4);
+    }
+  }
+  for (height4 = 18; height4 < 31; height4++) {
+    for (width4 = pipe4X; width4 < pipe4X + 5; width4++) {
+      setPixel(width4, height4);
+    }
+  }
+  //pipe 4
+  int height5;
+  int width5;
+  for (height5 = 1; height5 < 17; height5++) {
+    for (width5 = pipe5X; width5 < pipe5X + 5; width5++) {
+      setPixel(width5, height5);
+    }
+  }
+  for (height5 = 30; height5 < 31; height5++) {
+    for (width5 = pipe5X; width5 < pipe5X + 5; width5++) {
+      setPixel(width5, height5);
+    }
+  }
+//pipe 5
+  int height6;
+  int width6;
+  for (height6 = 1; height6 < 9; height6++) {
+    for (width6 = pipe6X; width6 < pipe6X + 5; width6++) {
+      setPixel(width6, height6);
+    }
+  }
+  for (height6 = 24; height6 < 31; height6++) {
+    for (width6 = pipe6X; width6 < pipe6X + 5; width6++) {
+      setPixel(width6, height6);
+    }
+  }
+}
+
+void handlePipes() {
+  if (pipe1X < 0) {
+        movePipe(1);
+      } else {
+        pipe1X -= 1;
+      }
+
+      if (pipe2X < 0) {
+        movePipe(2);
+      } else {
+        pipe2X -= 1;
+      }
+
+      if (pipe3X < 0) {
+        movePipe(3);
+      } else {
+        pipe3X -= 1;
+      }
+
+      if (pipe4X < 0) {
+        movePipe(4);
+      } else {
+        pipe4X -= 1;
+      }
+
+      if (pipe5X < 0) {
+        movePipe(5);
+      } else {
+        pipe5X -= 1;
+      }
+
+      if (pipe6X < 0) {
+        movePipe(6);
+      } else {
+        pipe6X -= 1;
+      }
+}
+
+void drawRoof() {
+  int i;
+  for (i = 0; i < WIDTH; i++) {
+    setPixel(i, 0);
+  }
+}
+
+void drawGround() {
+  int i;
+  for (i = 0; i < WIDTH; i++) {
+    setPixel(i, 31);
+  }
+}
+
+void drawPlayer(int x, int y) {
+  setPixelCheckCollision(x+1, y-3);
+  setPixelCheckCollision(x-1, y-3);
+
+  setPixelCheckCollision(x+1, y);
+  setPixelCheckCollision(x, y);
+  setPixelCheckCollision(x-1, y);
+
+  setPixelCheckCollision(x+2, y-1);
+  setPixelCheckCollision(x-2, y-1);
+}
+
+void clearDisplay() {
+  int i;
+  for (i = 0; i < 512; i++) {
+    icon2[i] = 255;
+  }
+}
+
+void death() {
+  char endText[] = "    Game Over";
+  int i;
+  int k;
+  int line = 2;
+  while (1) {
+    display_string(line, endText);
+    display_update();
+    TMR2 = 0x1;
+    int buttonCheck = getbtns();
+    if((buttonCheck >> 1) & 0x1 == 1) {
+      for (i = 0; i < 16; i++){
+        textbuffer[line][i] = ' ';
+      }
+      resetPipes();
+      TMR2 = 0x0;
+      playerPosY = 16;
+      break;
+    }
+  }
+}
+
+
+void borderCollision() {
+  if (playerPosY < 1) {
+     playerPosY = 4;
+  } 
+  if (playerPosY > 30) {
+    playerPosY = 16;
+    death();
+  }
+}
+
+void obstacleCollision() {
+  
 }
 
 /* tick:
@@ -144,12 +545,9 @@ void display_string(int line, char *s) {
 
 
 
-
-
 void display_image(int x, int y, const uint8_t *data) {
 	int i, j;
   
-
   for(i = y+1; i < 5; i++) {
 		DISPLAY_CHANGE_TO_COMMAND_MODE;
 
@@ -179,54 +577,32 @@ void display_image(int x, int y, const uint8_t *data) {
 		for(j = 0; j < 16; j++)
 			spi_send_recv(~data[i*16 + j]);
 	}
-  
-
-/*
-  if(y == 3){
-    for(i = 0; i < 4-y; i++) {
-		DISPLAY_CHANGE_TO_COMMAND_MODE;
-
-		spi_send_recv(0x22);
-		spi_send_recv(i);
-		
-		spi_send_recv(x & 0xF);
-		spi_send_recv(0x10 | ((x >> 4) & 0xF));
-		
-		DISPLAY_CHANGE_TO_DATA_MODE;
-		
-		for(j = 0; j < 16; j++)
-			spi_send_recv(~data[i*16 + j]);
-	}
-  }
-
-  if(y == 2){
-    for(i = 0; i < 0; i++) {
-		DISPLAY_CHANGE_TO_COMMAND_MODE;
-
-		spi_send_recv(0x22);
-		spi_send_recv(i);
-		
-		spi_send_recv(x & 0xF);
-		spi_send_recv(0x10 | ((x >> 4) & 0xF));
-		
-		DISPLAY_CHANGE_TO_DATA_MODE;
-		
-		for(j = 0; j < 16; j++)
-			spi_send_recv(~data[i*16 + j]);
-	}
-  }
-
-*/
-  //fsdfsdfdssdf
 }
 
 
+void display_image2(int x, const uint8_t *data) {
+	int i, j;
+	
+	//for(i = 0; i < 4; i++) {
+		DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+    //vertical column
+		spi_send_recv(0x22);
+		spi_send_recv(0);
+    spi_send_recv(127);
+		
+	//	spi_send_recv(x & 0xF);
+		//spi_send_recv(0x10 | ((x >> 4) & 0xF));
+		
+		DISPLAY_CHANGE_TO_DATA_MODE;
+		
+		for(j = 0; j < 128; j++)
+			spi_send_recv(~data[j]);
+	//}
+}
 
 
-
-
-
-/*void display_image(int x, const uint8_t *data) {
+void display_image3(int x, const uint8_t *data) {
 	int i, j;
 	
 	for(i = 0; i < 4; i++) {
@@ -240,10 +616,11 @@ void display_image(int x, int y, const uint8_t *data) {
 		
 		DISPLAY_CHANGE_TO_DATA_MODE;
 		
-		for(j = 0; j < 32; j++)
-			spi_send_recv(~data[i*32 + j]);
+		for(j = 0; j < 32*4; j++)
+			spi_send_recv(~data[i*32*4 + j]);
 	}
-}*/
+}
+
 
 
 void display_update(void) {
