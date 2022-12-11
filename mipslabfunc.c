@@ -28,21 +28,13 @@ static void num32asc( char * s, int );
 #define HEIGHT (32)
 #define PAGES (4)
 
-extern x1;
-extern y1;
-extern x2;
-extern y2;
-extern tmr;
 extern playerPosY;
-extern pipe1X;
-extern pipe2X;
-extern pipe3X;
-extern pipe4X;
-extern pipe5X;
-extern pipe6X;
+extern pipeGap[];
+extern pipeXs[];
+extern numberOfPipes;
 
 /*
-Sets the specified pixel to on
+Turns the specified pixel on
 */
 void setPixel(int x, int y) {
   uint8_t page;
@@ -96,11 +88,11 @@ void setPixel(int x, int y) {
     icon2[indexSliver] &= 0b01111111;
     break;
   }
-}
+ }
 }
 
 /*
-Sets the specified pixel on and also ends game if the pixels collide.
+Turns the specified pixel on and also ends game if the pixels collide.
 */
 void setPixelCheckCollision(int x, int y) {
   uint8_t page;
@@ -125,7 +117,6 @@ void setPixelCheckCollision(int x, int y) {
   for (i = 0; i < 512; i++) {
     icon3[i] = icon2[i];
   }
-
 
   switch (y) {
   case 0:
@@ -192,9 +183,8 @@ void setPixelCheckCollision(int x, int y) {
     }
     break;
   }
+ }
 }
-}
-
 
 /* quicksleep:
    A simple function to create a small delay.
@@ -205,165 +195,53 @@ void quicksleep(int cyc) {
 	for(i = cyc; i > 0; i--);
 }
 
+/* Resets all pipes to their starting position */
 void resetPipes() {
-  pipe1X = 50;
-  pipe2X = 75;
-  pipe3X = 100;
-  pipe4X = 125;
-  pipe5X = 150;
-  pipe6X = 175;
-}
-
-void movePipe(int pipeNumber) {
-  switch (pipeNumber)
-  {
-  case 1:
-    pipe1X = 150;
-    break;
-
-  case 2:
-    pipe2X = 150;
-    break;
-
-  case 3:
-    pipe3X = 150;
-    break;
-
-  case 4:
-    pipe4X = 150;
-    break;
-
-  case 5:
-    pipe5X = 150;
-    break;
-
-  case 6:
-    pipe6X = 150;
-    break;
-  
-  default:
-    break;
+  int i;
+  int position = 50;
+  for (i = 0; i < numberOfPipes; i++) {
+    pipeXs[i] = position;
+    position += 25;
   }
 }
 
+/* Draws the pipes, edit numberOfPipes + pipeGap + pipeXs in mibslabwork.c to modify pipes */
 void drawPipes() {
-  int height1;
-  int width1;
-  for (height1 = 1; height1 < 5; height1++) {
-    for (width1 = pipe1X; width1 < pipe1X + 5; width1++) {
-      setPixel(width1, height1);
+  int currentPipe;
+  for (currentPipe = 0; currentPipe < numberOfPipes; currentPipe++) {
+    int height1;
+    for (height1 = 1; height1 < pipeGap[currentPipe*2]; height1++) {
+      int width1;
+      for (width1 = pipeXs[currentPipe]; width1 < pipeXs[currentPipe] + 5; width1++){
+        setPixel(width1, height1);
+      }
     }
-  }
-  for (height1 = 20; height1 < 31; height1++) {
-    for (width1 = pipe1X; width1 < pipe1X + 5; width1++) {
-      setPixel(width1, height1);
+    int height2;
+    for (height2 = pipeGap[(currentPipe*2)+1]; height2 < 31; height2++) {
+      int width2;
+      for (width2 = pipeXs[currentPipe]; width2 < pipeXs[currentPipe] + 5; width2++){
+        setPixel(width2, height2);
+      }
     }
-  }
-
-  int height2;
-  int width2;
-  for (height2 = 1; height2 < 13; height2++) {
-    for (width2 = pipe2X; width2 < pipe2X + 5; width2++) {
-      setPixel(width2, height2);
-    }
-  }
-  for (height2 = 28; height2 < 31; height2++) {
-    for (width2 = pipe2X; width2 < pipe2X + 5; width2++) {
-      setPixel(width2, height2);
-    }
-  }
-//pipe 3
-  int height3;
-  int width3;
-  for (height3 = 1; height3 < 5; height3++) {
-    for (width3 = pipe3X; width3 < pipe3X + 5; width3++) {
-      setPixel(width3, height3);
-    }
-  }
-  for (height3 = 25; height3 < 31; height3++) {
-    for (width3 = pipe3X; width3 < pipe3X + 5; width3++) {
-      setPixel(width3, height3);
-    }
-  }
-//pipe 4
-  int height4;
-  int width4;
-  for (height4 = 1; height4 < 3; height4++) {
-    for (width4 = pipe4X; width4 < pipe4X + 5; width4++) {
-      setPixel(width4, height4);
-    }
-  }
-  for (height4 = 18; height4 < 31; height4++) {
-    for (width4 = pipe4X; width4 < pipe4X + 5; width4++) {
-      setPixel(width4, height4);
-    }
-  }
-  //pipe 4
-  int height5;
-  int width5;
-  for (height5 = 1; height5 < 17; height5++) {
-    for (width5 = pipe5X; width5 < pipe5X + 5; width5++) {
-      setPixel(width5, height5);
-    }
-  }
-  for (height5 = 30; height5 < 31; height5++) {
-    for (width5 = pipe5X; width5 < pipe5X + 5; width5++) {
-      setPixel(width5, height5);
-    }
-  }
-//pipe 5
-  int height6;
-  int width6;
-  for (height6 = 1; height6 < 9; height6++) {
-    for (width6 = pipe6X; width6 < pipe6X + 5; width6++) {
-      setPixel(width6, height6);
-    }
-  }
-  for (height6 = 24; height6 < 31; height6++) {
-    for (width6 = pipe6X; width6 < pipe6X + 5; width6++) {
-      setPixel(width6, height6);
-    }
-  }
+  } 
 }
 
+/* Moves pipes towards the player unless it's out of bounds, gets moved to start then. */
 void handlePipes() {
-  if (pipe1X < 0) {
-        movePipe(1);
-      } else {
-        pipe1X -= 1;
-      }
-
-      if (pipe2X < 0) {
-        movePipe(2);
-      } else {
-        pipe2X -= 1;
-      }
-
-      if (pipe3X < 0) {
-        movePipe(3);
-      } else {
-        pipe3X -= 1;
-      }
-
-      if (pipe4X < 0) {
-        movePipe(4);
-      } else {
-        pipe4X -= 1;
-      }
-
-      if (pipe5X < 0) {
-        movePipe(5);
-      } else {
-        pipe5X -= 1;
-      }
-
-      if (pipe6X < 0) {
-        movePipe(6);
-      } else {
-        pipe6X -= 1;
-      }
+  int i;
+  for (i = 0; i < numberOfPipes; i++) {
+    if (pipeXs[i] < 0) {
+      pipeXs[i] = 150;
+      volatile int* lights = (volatile int*) 0xbf886110;
+      *lights = *lights & 0xFF;
+      (*lights)++;
+    } else {
+      pipeXs[i] -= 1;
+    }
+  }
 }
 
+/* Draws a single line of pixels along the top to represent a roof. */
 void drawRoof() {
   int i;
   for (i = 0; i < WIDTH; i++) {
@@ -371,6 +249,7 @@ void drawRoof() {
   }
 }
 
+/* Draws a single line of pixels along the bottom to represent the ground. */
 void drawGround() {
   int i;
   for (i = 0; i < WIDTH; i++) {
@@ -378,6 +257,7 @@ void drawGround() {
   }
 }
 
+/* Draws the player, checks for collision. */
 void drawPlayer(int x, int y) {
   setPixelCheckCollision(x+1, y-3);
   setPixelCheckCollision(x-1, y-3);
@@ -390,6 +270,7 @@ void drawPlayer(int x, int y) {
   setPixelCheckCollision(x-2, y-1);
 }
 
+/* Sets all pixels to 1, aka off. */
 void clearDisplay() {
   int i;
   for (i = 0; i < 512; i++) {
@@ -397,6 +278,7 @@ void clearDisplay() {
   }
 }
 
+/* Ends game, moves to death screen, also responsible for starting game. */
 void death() {
   char endText[] = "    Game Over";
   int i;
@@ -412,6 +294,9 @@ void death() {
         textbuffer[line][i] = ' ';
       }
       resetPipes();
+      volatile int* lights = (volatile int*) 0xbf886110;
+      *lights = *lights & 0xFF;
+      (*lights) = 0;
       TMR2 = 0x0;
       playerPosY = 16;
       break;
@@ -419,19 +304,11 @@ void death() {
   }
 }
 
-
-void borderCollision() {
-  if (playerPosY < 1) {
+/* Makes it so you can't crash into the roof and die. */
+void roofCollision() {
+  if (playerPosY < 4) {
      playerPosY = 4;
   } 
-  if (playerPosY > 30) {
-    playerPosY = 16;
-    death();
-  }
-}
-
-void obstacleCollision() {
-  
 }
 
 /* tick:
@@ -544,65 +421,7 @@ void display_string(int line, char *s) {
 }
 
 
-
-void display_image(int x, int y, const uint8_t *data) {
-	int i, j;
-  
-  for(i = y+1; i < 5; i++) {
-		DISPLAY_CHANGE_TO_COMMAND_MODE;
-
-		spi_send_recv(0x22);
-		spi_send_recv(i);
-		
-		spi_send_recv(x & 0xF);
-		spi_send_recv(0x10 | ((x >> 4) & 0xF));
-		
-		DISPLAY_CHANGE_TO_DATA_MODE;
-		
-		for(j = 0; j < 16; j++)
-			spi_send_recv(~data[i*16 + j]);
-	}
-
-	for(i = -1; i < y-1; i++) {
-		DISPLAY_CHANGE_TO_COMMAND_MODE;
-
-		spi_send_recv(0x22);
-		spi_send_recv(i);
-		
-		spi_send_recv(x & 0xF);
-		spi_send_recv(0x10 | ((x >> 4) & 0xF));
-		
-		DISPLAY_CHANGE_TO_DATA_MODE;
-		
-		for(j = 0; j < 16; j++)
-			spi_send_recv(~data[i*16 + j]);
-	}
-}
-
-
-void display_image2(int x, const uint8_t *data) {
-	int i, j;
-	
-	//for(i = 0; i < 4; i++) {
-		DISPLAY_CHANGE_TO_COMMAND_MODE;
-
-    //vertical column
-		spi_send_recv(0x22);
-		spi_send_recv(0);
-    spi_send_recv(127);
-		
-	//	spi_send_recv(x & 0xF);
-		//spi_send_recv(0x10 | ((x >> 4) & 0xF));
-		
-		DISPLAY_CHANGE_TO_DATA_MODE;
-		
-		for(j = 0; j < 128; j++)
-			spi_send_recv(~data[j]);
-	//}
-}
-
-
-void display_image3(int x, const uint8_t *data) {
+void display_image(int x, const uint8_t *data) {
 	int i, j;
 	
 	for(i = 0; i < 4; i++) {
@@ -620,8 +439,6 @@ void display_image3(int x, const uint8_t *data) {
 			spi_send_recv(~data[i*32*4 + j]);
 	}
 }
-
-
 
 void display_update(void) {
 	int i, j, k;

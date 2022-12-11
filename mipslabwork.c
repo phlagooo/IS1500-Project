@@ -18,42 +18,30 @@ int playerPosY = 16;
 int playerPosX = 16;
 int fps = 10;
 
-int pipe1X = 50;
-int pipe2X = 75;
-int pipe3X = 100;
-int pipe4X = 125;
-int pipe5X = 150;
-int pipe6X = 175;
-
+int numberOfPipes = 6;
+//two y cords indicate the gap in the pipe
+int pipeGap[6*2] = {5, 20, 13, 28, 5, 25, 3, 18, 17, 30, 9, 24};
+int pipeXs[6] = {50, 75, 100, 125, 150, 175};
 
 /* Interrupt Service Routine */
 void user_isr( void ) {
   if(IFS(0) & 0x100) { //check timer flag
       clearDisplay();
-      borderCollision();
-      display_update();
-  
-      playerPosY++;
 
+      playerPosY++;
+      roofCollision();
       drawRoof();
       drawGround();
       drawPipes();
-      drawPlayer(playerPosX, playerPosY);
-
-      
-      display_image3(0, icon2);
-
       handlePipes();
-
+      drawPlayer(playerPosX, playerPosY);
+      
+      display_image(0, icon2);
+    
       int buttonCheck = getbtns();
       if((buttonCheck >> 2) & 0x1 == 1) {
         playerPosY -= 4;
- }
-    
-      volatile int* lights = (volatile int*) 0xbf886110;
-      *lights = *lights & 0xFF;
-      (*lights)++;
-      
+      }      
     }
     IFSCLR(0) = 0x100; //clear timer flag
  }
@@ -79,24 +67,5 @@ void labinit( void ) {
 }
 
 /* This function is called repetitively from the main program */
-void labwork( void ) { //handle inputs here for lower latency (might be negligible tho, 1/60 seconds)
-  int buttonCheck = getbtns();
-  if(buttonCheck != 0) {
-    int switchesCheck = getsw();
-
-    if(buttonCheck & 0x1 == 1) {
-    //mytime = (mytime & 0xFF0F) | (switchesCheck << 4);
-    }
-
-    if((buttonCheck >> 1) & 0x1 == 1) {
-     //mytime = (mytime & 0xF0FF) | (switchesCheck << 8);
-    }
-
-    if((buttonCheck >> 2) & 0x1 == 1) {
-     //mytime = (mytime & 0xFFF) | (switchesCheck << 12);
-     
-     
-
-    }
- }
+void labwork( void ) { 
 }
