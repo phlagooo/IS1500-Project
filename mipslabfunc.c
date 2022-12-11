@@ -278,7 +278,7 @@ void clearDisplay() {
   }
 }
 
-/* Ends game, moves to death screen, also responsible for starting game. */
+/* Ends game, moves to death screen, also responsible for restarting game. */
 void death() {
   char endText[] = "    Game Over";
   int i;
