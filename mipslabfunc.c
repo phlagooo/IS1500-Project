@@ -37,70 +37,25 @@ extern numberOfPipes;
 Turns the specified pixel on
 */
 void setPixel(int x, int y) {
-  uint8_t page;
-  int indexSliver;
+  int page = checkPage(x, y);
 
-  if ((y >= 0) && (y < 32) && (x >= 0) && (x < 128))
-  {
-  
-  if (y < 8) {
-    page = 0;
-  } else if (y < 16) {
-    page = 1;
-  } else if (y < 24) {
-    page = 2;
-  } else if (y < 32) {
-    page = 3;
-  }
+  if ((y >= 0) && (y < 32) && (x >= 0) && (x < 128)) {
+
   y = y % 8;
-  indexSliver = (page*128) + x;
+  int indexSliver = (page*128) + x;
 
-  switch (y) {
-  case 0:
-    icon2[indexSliver] &= 0b11111110;
-    break;
-
-  case 1:
-    icon2[indexSliver] &= 0b11111101;
-    break;
-
-  case 2:
-    icon2[indexSliver] &= 0b11111011;
-    break;
-    
-  case 3:
-    icon2[indexSliver] &= 0b11110111;
-    break;
-
-  case 4:
-    icon2[indexSliver] &= 0b11101111;
-    break;
-
-  case 5:
-    icon2[indexSliver] &= 0b11011111;
-    break;
-
-  case 6:
-    icon2[indexSliver] &= 0b10111111;
-    break;
-    
-  case 7:
-    icon2[indexSliver] &= 0b01111111;
-    break;
+  int magicNumber = 1;
+  int i;
+  for (i = 0; i < y; i++) {
+    magicNumber *= 2;
   }
+  icon2[indexSliver] &= ~magicNumber;
  }
 }
 
-/*
-Turns the specified pixel on and also ends game if the pixels collide.
-*/
-void setPixelCheckCollision(int x, int y) {
-  uint8_t page;
-  int indexSliver;
-
-  if ((y >= 0) && (y < 32) && (x >= 0) && (x < 128))
-  {
-  
+/* Checks what page the pixel is on. */
+int checkPage(int x, int y) {
+  int page;
   if (y < 8) {
     page = 0;
   } else if (y < 16) {
@@ -110,80 +65,28 @@ void setPixelCheckCollision(int x, int y) {
   } else if (y < 32) {
     page = 3;
   }
-  y = y % 8;
-  indexSliver = (page*128) + x;
-  uint8_t icon3[512];
-  int i;
-  for (i = 0; i < 512; i++) {
-    icon3[i] = icon2[i];
+  return page;
+}
+
+/* Checks if the specified pixel is already on, ends game if so. */
+void checkCollision(int x, int y) {
+  if ((y >= 0) && (y < 32) && (x >= 0) && (x < 128)) {
+   int page = checkPage(x, y);
+   int indexSliver = (page*128) + x;
+   y %= 8;
+    uint8_t icon2Copy[512];
+    int i;
+    for (i = 0; i < 512; i++) {
+     icon2Copy[i] = icon2[i];
+    }
+    int magicNumber = 1;
+    for (i = 0; i < y; i++) {
+      magicNumber *= 2;
+    }
+    if ((icon2Copy[indexSliver] &= magicNumber) == 0) {
+      death();
+    }
   }
-
-  switch (y) {
-  case 0:
-    if ((icon3[indexSliver] &= 0b1) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b11111110;
-    }
-    break;
-
-  case 1:
-    if ((icon3[indexSliver] &= 0b10) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b11111101;
-    }
-    break;
-
-  case 2:
-    if ((icon3[indexSliver] &= 0b100) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b11111011;
-    }
-    break;
-    
-  case 3:
-    if ((icon3[indexSliver] &= 0b1000) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b11110111;
-    }
-    break;
-
-  case 4:
-    if ((icon3[indexSliver] &= 0b10000) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b11101111;
-    }
-    break;
-
-  case 5:
-    if ((icon3[indexSliver] &= 0b100000) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b11011111;
-    }
-    break;
-
-  case 6:
-    if ((icon3[indexSliver] &= 0b1000000) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b10111111;
-    }
-    break;
-    
-  case 7:
-    if ((icon3[indexSliver] &= 0b10000000) == 0) {
-      death();
-    } else {
-      icon2[indexSliver] &= 0b01111111;
-    }
-    break;
-  }
- }
 }
 
 /* quicksleep:
@@ -259,15 +162,22 @@ void drawGround() {
 
 /* Draws the player, checks for collision. */
 void drawPlayer(int x, int y) {
-  setPixelCheckCollision(x+1, y-3);
-  setPixelCheckCollision(x-1, y-3);
+  checkCollision(x+1, y-3);
+  setPixel(x+1, y-3);
+  checkCollision(x-1, y-3);
+  setPixel(x-1, y-3);
 
-  setPixelCheckCollision(x+1, y);
-  setPixelCheckCollision(x, y);
-  setPixelCheckCollision(x-1, y);
+  checkCollision(x+1, y);
+  setPixel(x+1, y);
+  checkCollision(x, y);
+  setPixel(x, y);
+  checkCollision(x-1, y);
+  setPixel(x-1, y);
 
-  setPixelCheckCollision(x+2, y-1);
-  setPixelCheckCollision(x-2, y-1);
+  checkCollision(x+2, y-1);
+  setPixel(x+2, y-1);
+  checkCollision(x-2, y-1);
+  setPixel(x-2, y-1);
 }
 
 /* Sets all pixels to 1, aka off. */
